@@ -15,4 +15,8 @@ RSpec.describe User, type: :model do
 			end
 		end
 	end
+
+	describe 'password validations' do
+		it { should have_secure_password }
+	end
 end

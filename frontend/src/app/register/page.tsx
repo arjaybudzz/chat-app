@@ -1,8 +1,11 @@
 import TextField from '@mui/material/TextField'
 import register from '../api/user';
 import SubmitButton from '../components/SubmitButton';
+import { redirect } from "next/navigation"
+
 
 export default function Register() {	
+	
 	return (
 
 		<div className="flex justify-center items-center w-screen h-screen">

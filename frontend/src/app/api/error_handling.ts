@@ -1,9 +1,6 @@
-"use server"
+import { parse } from 'path';
+import { ZodIssue, z } from 'zod'
 
-import create from "../actions"
-import { revalidateTag } from "next/cache"
-import { redirect } from "next/navigation"
-import { z } from "zod"
 
 const user = z.object({
     username: z.string({
@@ -38,26 +35,9 @@ const user = z.object({
     }
 })
 
-const register = async(formData: FormData) => {
-    const result = user.parse({
-        username: formData.get("username-input"),
-        email: formData.get("email-input"),
-        password: formData.get("password-input"),
-        passwordConfirmation: formData.get("password-confirmation-input")
-    })
-
-    await create({
-        username: result.username,
-        email: result.email,
-        password: result.password,
-        password_confirmation: result.passwordConfirmation 
-    }).then((response) => {
-        console.log(response);
-        revalidateTag("users");
-        redirect("/");
-    }).catch((errors) => {
-        console.log(errors);
-    })
+const parseData = (data: {[key: string]: any}) => {
+    const result = user.safeParse(data);
+    return result.success? {} : result.error.format();
 }
 
-export default register;
+export default parseData;

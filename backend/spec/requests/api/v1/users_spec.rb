@@ -50,7 +50,61 @@ RSpec.describe "Api::V1::Users", type: :request do
 	end
 	
   end
+
+
+  describe "PATCH /update" do
+	context "user enters valid input" do
+		before do
+			patch api_v1_user_url(@user),
+			params: { user: @user_valid_input }, 
+			as: :json
+		end
+
+		it { expect(response).to have_http_status(:success) }
+	end
+
+
+	context 'user enters invalid input' do
+		before do
+			patch api_v1_user_url(@user),
+			params: { user: @user_invalid_input },
+			as: :json
+		end
+
+		it { expect(response).to have_http_status(:unprocessable_entity) }
+	end
+  end
+
+  describe 'DELETE /destroy' do
+	before do
+		delete api_v1_user_url(@user), as: :json
+	end
+
+	it { expect(response).to have_http_status(:no_content) }
+  end
+ 	
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-	before_action :setup_user, only: %i[show]
+	before_action :setup_user, only: %i[show update destroy]
 	
 	wrap_parameters include: %i[username email password password_confirmation]
 
@@ -20,6 +20,19 @@ class Api::V1::UsersController < ApplicationController
 		else
 			render json: @user.errors, status: :unprocessable_entity
 		end
+	end
+
+	def update
+		if @user.update(permitted_user_params)
+			render json: @user, status: :ok
+		else
+			render json: { errors: @user.errors }, status: :unprocessable_entity
+		end
+	end
+
+	def destroy
+		@user.destroy
+		head 204
 	end
 
 	private

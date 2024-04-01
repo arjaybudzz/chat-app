@@ -3,64 +3,46 @@
 import { TextField } from '@mui/material'
 import SubmitButton from '../components/SubmitButton';
 import axios from 'axios';
-import { z } from 'zod';
-import { redirect } from 'next/navigation';
-import { revalidateTag } from 'next/cache';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod'
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useState } from 'react';
+import * as yup from 'yup';
 
+interface User {
+	username: string,
+	email: string,
+	password: string,
+	passwordConfirmation: string
+};
 
 export default function Register() {	
-	const user = z.object({
-		username: z.string({
-			invalid_type_error: "Please enter a string",
-			required_error: "Please enter your username."
-		}),
-		email: z.string({
-			invalid_type_error: "Please enter a string",
-			required_error: "Please enter your email."
 
-		}).email({
-			message: "Invalid email format."
-		}),
-		password: z.string({
-			invalid_type_error: "Please enter a string",
-			required_error: "Please enter your password."
-
-		}).min(8, { message: "Your password should have a minimum of 8 characters." })
-		.max(20, { message: "Your password should have a maximum of 20 characters." }),
-		passwordConfirmation: z.string({
-			invalid_type_error: "Please enter a string",
-			required_error: "Please confirm your password."
-		}).min(8, { message: "Your password should have a minimum of 8 characters." })
-		.max(20, { message: "Your password should have a maximum of 20 characters." }),
-
+	const [user, setUser] = useState<User>({
+		username: "",
+		email: "",
+		password: "",
+		passwordConfirmation: ""
 	})
-	.required()
-	.strict()
-	.superRefine((val, ctx) => {
-		if (val.password !== val.passwordConfirmation) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				message: "Passwords do not match."
-			})
 
-		}
+
+	const validation = yup.object().shape({
+		username: yup.string().required("Please enter your username."),
+		email: yup.string().email("Invalid email format.").required("Please enter your email."),
+		password: yup.string().required("Please enter your password.").min(8, "Password must be at least 8 characters.").max(20, "Password must not exceed 20 characters."),
+		passwordConfirmation: yup.string().required("Please confirm your password").oneOf([yup.ref("password")], "Passwords do not match.")
+
 	})
 
 	const { register, handleSubmit, formState: {errors} } = useForm({
-		resolver: zodResolver(user) 
+		resolver: yupResolver(validation)
 	})
-
-
-	const onSubmit = (data) => console.log(data);
 
 	return (
 
 		<div className="flex justify-center items-center w-screen h-screen">
 			<form 
 				method='POST' 
-				onSubmit={handleSubmit(onSubmit)}	
+				onSubmit={handleSubmit((data) => console.log(data))}	
 				className="flex flex-col justify-around items-center shadow-md rounded-xl shadow-black w-1/4 h-3/4 p-6 bg-gray-300">
 				<div className="flex w-full h-auto justify-center mb-5 items-center">
 					<h1 className="text-4xl font-bold">
@@ -73,7 +55,8 @@ export default function Register() {
 						{...register("username")} 
 						label="Username" 
 						type="text" 
-						name="username-input" 
+						name="username-input"
+						onChange={(e) => setUser({...user, username: e.target.value})} 
 						helperText={errors.username?.message} 
 						required	
 						/>
@@ -102,6 +85,7 @@ export default function Register() {
 
 				<SubmitButton />	
 			</form>	
+			{user.username}
 		</div>
 	);
 }

@@ -5,9 +5,15 @@ import { CircularProgress } from '@mui/material'
 import { useFormStatus } from 'react-dom'
 
 const SubmitButton = () => {
-    const { pending } = useFormStatus();
+  const { pending } = useFormStatus();
+ 
   return (
-    <button type="submit" disabled={pending? true : false} className="w-full h-14 font-bold text-white bg-black">{pending? <CircularProgress sx={{color: "white", scale: "70%"}}/> : "SUBMIT"}</button>
+    <button 
+	type="submit" 
+	disabled={pending? true : false} 
+	className="w-full h-14 font-bold text-white bg-black hover:opacity-75 active:opacity-50">
+		{pending? <CircularProgress sx={{color: "white", scale: "70%"}}/> : "SUBMIT"}
+	</button>
   )
 }
 

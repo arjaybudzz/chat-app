@@ -4,6 +4,8 @@ import create from "../actions"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
+import axios from 'axios'
+import { cookies } from 'next/headers'
 
 const user = z.object({
     username: z.string({
@@ -27,7 +29,6 @@ const user = z.object({
         required_error: "Please confirm your password."
     })
 })
-.required()
 .strict()
 .superRefine((val, ctx) => {
     if (val.password !== val.passwordConfirmation) {
@@ -39,18 +40,11 @@ const user = z.object({
 })
 
 const register = async(formData: FormData) => {
-    const result = user.parse({
+    await create({
         username: formData.get("username-input"),
         email: formData.get("email-input"),
         password: formData.get("password-input"),
-        passwordConfirmation: formData.get("password-confirmation-input")
-    })
-
-    await create({
-        username: result.username,
-        email: result.email,
-        password: result.password,
-        password_confirmation: result.passwordConfirmation 
+        password_confirmation: formData.get("password-confirmation-input") 
     }).then((response) => {
         console.log(response);
         revalidateTag("users");
@@ -60,4 +54,28 @@ const register = async(formData: FormData) => {
     })
 }
 
+const login = async(formData: FormData) => {
+	await axios.post(`http://127.0.0.1:3001/api/v1/tokens?user[email]=${formData.get("email-input")}&user[password]=${formData.get("password-input")}`)
+	.then((response) => {
+		cookies().set("userToken", response.data.token);
+		cookies().set("userId", response.data.id);
+		redirect("/");
+	})
+	.catch((errors) => {
+		console.log(errors);
+	})
+
+}
+
 export default register;
+export { login };
+
+
+
+
+
+
+
+
+
+

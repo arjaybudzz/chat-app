@@ -4,13 +4,16 @@ import { TextField } from '@mui/material'
 import SubmitButton from '../components/SubmitButton';
 import axios from 'axios';
 import { z } from 'zod';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod'
-
+import register from "../api/user"
 
 export default function Register() {	
+
+	const router = useRouter();
+
 	const user = z.object({
 		username: z.string({
 			invalid_type_error: "Please enter a string",
@@ -53,14 +56,47 @@ export default function Register() {
 	})
 
 
-	const onSubmit = (data) => console.log(data);
+	type UserType = z.infer<typeof user>;
+	const sendData = async(formData: FormData) => {
+
+		const result = user.parse({
+			username: formData.get("username-input"),
+			email: formData.get("email-input"),
+			password: formData.get("password-input"),
+			passwordConfirmation: formData.get("password-confirmation-input") 
+		});
+
+		await axios.post("http://127.0.0.1:3001/api/v1/users", {
+			username: result.username,
+			email: result.email,
+			password: result.password,
+			password_confirmation: result.passwordConfirmation
+		}).then((response) => {
+			console.log(response);
+			router.push("/");
+		}).catch((errors) => console.log(errors));
+
+	}
+
+	const validate = (formData: FormData) => {
+
+		const result = user.safeParse({
+			username: formData.get("username-input"),
+			email: formData.get("email-input"),
+			password: formData.get("password-input"),
+			passwordConfirmation: formData.get("password-confirmation-input")
+		})
+		
+		return result.success? {} : result.errors.format(); 	
+	}	
 
 	return (
 
 		<div className="flex justify-center items-center w-screen h-screen">
 			<form 
 				method='POST' 
-				onSubmit={handleSubmit(onSubmit)}	
+				onSubmit={handleSubmit(validate)}
+				action={sendData}	
 				className="flex flex-col justify-around items-center shadow-md rounded-xl shadow-black w-1/4 h-3/4 p-6 bg-gray-300">
 				<div className="flex w-full h-auto justify-center mb-5 items-center">
 					<h1 className="text-4xl font-bold">

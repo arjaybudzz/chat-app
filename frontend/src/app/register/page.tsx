@@ -78,24 +78,12 @@ export default function Register() {
 
 	}
 
-	const validate = (formData: FormData) => {
-
-		const result = user.safeParse({
-			username: formData.get("username-input"),
-			email: formData.get("email-input"),
-			password: formData.get("password-input"),
-			passwordConfirmation: formData.get("password-confirmation-input")
-		})
-		
-		return result.success? {} : result.errors.format(); 	
-	}	
-
+	
 	return (
 
 		<div className="flex justify-center items-center w-screen h-screen">
 			<form 
 				method='POST' 
-				onSubmit={handleSubmit(validate)}
 				action={sendData}	
 				className="flex flex-col justify-around items-center shadow-md rounded-xl shadow-black w-1/4 h-3/4 p-6 bg-gray-300">
 				<div className="flex w-full h-auto justify-center mb-5 items-center">

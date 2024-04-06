@@ -33,7 +33,7 @@ export default function Login() {
 			cookies().set("userToken", response.data.token);
 			cookies().set("userId", response.data.id);
 			router.push("/feed");
-		}).catch((errors) => console.log(errors)),
+		}).catch((errors) => console.log(errors))
 	}
 
 	return (
